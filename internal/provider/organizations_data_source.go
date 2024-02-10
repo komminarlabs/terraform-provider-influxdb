@@ -85,6 +85,7 @@ func (d *OrganizationsDataSource) Configure(ctx context.Context, req datasource.
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -101,6 +102,7 @@ func (d *OrganizationsDataSource) Read(ctx context.Context, req datasource.ReadR
 			"Unable to list Organizations",
 			err.Error(),
 		)
+
 		return
 	}
 

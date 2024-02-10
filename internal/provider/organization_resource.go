@@ -47,7 +47,7 @@ func (r *OrganizationResource) Schema(ctx context.Context, req resource.SchemaRe
 				Computed:    true,
 				Description: "An organization ID.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -93,6 +93,7 @@ func (r *OrganizationResource) Create(ctx context.Context, req resource.CreateRe
 			"Error creating organization",
 			"Could not create organization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -128,6 +129,7 @@ func (r *OrganizationResource) Read(ctx context.Context, req resource.ReadReques
 			"Organization not found",
 			err.Error(),
 		)
+
 		return
 	}
 
@@ -169,6 +171,7 @@ func (r *OrganizationResource) Update(ctx context.Context, req resource.UpdateRe
 			"Error updating organization",
 			"Could not update organization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -203,6 +206,7 @@ func (r *OrganizationResource) Delete(ctx context.Context, req resource.DeleteRe
 			"Error deleting organization",
 			"Could not delete organization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 }
@@ -215,12 +219,12 @@ func (r *OrganizationResource) Configure(ctx context.Context, req resource.Confi
 	}
 
 	client, ok := req.ProviderData.(influxdb2.Client)
-
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 

@@ -50,5 +50,4 @@ resource "influxdb_bucket" "test" {
   configurable_attribute = %[1]q
 }
 `, configurableAttribute)
-}
- */
+}*/

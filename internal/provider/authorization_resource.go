@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -50,7 +52,7 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 				Computed:    true,
 				Description: "The authorization ID.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"token": schema.StringAttribute{
@@ -83,7 +85,7 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 				Computed:    true,
 				Description: "Organization name. Specifies the organization that owns the authorization.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.StringAttribute{
@@ -105,6 +107,12 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 			"permissions": schema.ListNestedAttribute{
 				Required:    true,
 				Description: "A list of permissions for an authorization.",
+				Validators: []validator.List{
+					listvalidator.UniqueValues(),
+				},
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
@@ -126,14 +134,14 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									Required:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
 									PlanModifiers: []planmodifier.String{
-										stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+										stringplanmodifier.UseStateForUnknown(),
 									},
 								},
 								"org": schema.StringAttribute{
 									Computed:    true,
 									Description: "An organization name. The organization that owns the resource.",
 									PlanModifiers: []planmodifier.String{
-										stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+										stringplanmodifier.UseStateForUnknown(),
 									},
 								},
 							},
@@ -159,14 +167,15 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 	var permissions []domain.Permission
 	for _, permissionData := range plan.Permissions {
 		permission := domain.Permission{
-			Action: domain.PermissionAction(*permissionData.Action.ValueStringPointer()),
+			Action: domain.PermissionAction(permissionData.Action.ValueString()),
 			Resource: domain.Resource{
 				Id:    permissionData.Resource.Id.ValueStringPointer(),
-				Type:  domain.ResourceType(*permissionData.Resource.Type.ValueStringPointer()),
+				Type:  domain.ResourceType(permissionData.Resource.Type.ValueString()),
 				Org:   permissionData.Resource.Org.ValueStringPointer(),
 				OrgID: permissionData.Resource.OrgID.ValueStringPointer(),
 			},
 		}
+
 		permissions = append(permissions, permission)
 	}
 
@@ -186,6 +195,7 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 			"Error creating authorization",
 			"Could not create authorization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -203,7 +213,7 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 			Action: types.StringValue(string(permissionData.Action)),
 			Resource: AuthorizationPermissionrResourceModel{
 				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(*&permissionData.Resource.Type)),
+				Type:  types.StringValue(string(permissionData.Resource.Type)),
 				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
 				Org:   types.StringPointerValue(permissionData.Resource.Org),
 			},
@@ -235,13 +245,15 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 			"Error getting Authorizations",
 			err.Error(),
 		)
+
 		return
 	}
 
 	var authorization *domain.Authorization = nil
 	for _, auth := range *readAuthorization {
+		v := auth
 		if *auth.Id == *state.Id.ValueStringPointer() {
-			authorization = &auth
+			authorization = &v
 			break
 		}
 	}
@@ -251,6 +263,7 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 			"Authorization not found",
 			err.Error(),
 		)
+
 		return
 	}
 
@@ -269,7 +282,7 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 			Action: types.StringValue(string(permissionData.Action)),
 			Resource: AuthorizationPermissionrResourceModel{
 				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(*&permissionData.Resource.Type)),
+				Type:  types.StringValue(string(permissionData.Resource.Type)),
 				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
 				Org:   types.StringPointerValue(permissionData.Resource.Org),
 			},
@@ -308,6 +321,7 @@ func (r *AuthorizationResource) Update(ctx context.Context, req resource.UpdateR
 			"Error updating authorization",
 			"Could not update authorization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -320,16 +334,18 @@ func (r *AuthorizationResource) Update(ctx context.Context, req resource.UpdateR
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
 
-	for index, permissionData := range *apiResponse.Permissions {
-		plan.Permissions[index] = AuthorizationPermissionModel{
-			Action: types.StringValue(string(permissionData.Action)),
+	for _, permission := range *apiResponse.Permissions {
+		permissionState := AuthorizationPermissionModel{
+			Action: types.StringValue(string(permission.Action)),
 			Resource: AuthorizationPermissionrResourceModel{
-				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(*&permissionData.Resource.Type)),
-				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
-				Org:   types.StringPointerValue(permissionData.Resource.Org),
+				Id:    types.StringPointerValue(permission.Resource.Id),
+				Type:  types.StringValue(string(permission.Resource.Type)),
+				OrgID: types.StringPointerValue(permission.Resource.OrgID),
+				Org:   types.StringPointerValue(permission.Resource.Org),
 			},
 		}
+
+		plan.Permissions = append(plan.Permissions, permissionState)
 	}
 
 	// Save updated data into Terraform state
@@ -356,6 +372,7 @@ func (r *AuthorizationResource) Delete(ctx context.Context, req resource.DeleteR
 			"Error deleting authorization",
 			"Could not delete authorization, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 }
@@ -368,12 +385,12 @@ func (r *AuthorizationResource) Configure(ctx context.Context, req resource.Conf
 	}
 
 	client, ok := req.ProviderData.(influxdb2.Client)
-
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 

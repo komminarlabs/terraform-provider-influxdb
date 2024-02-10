@@ -101,6 +101,7 @@ func (d *BucketsDataSource) Configure(ctx context.Context, req datasource.Config
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -117,6 +118,7 @@ func (d *BucketsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			"Unable to list buckets",
 			err.Error(),
 		)
+
 		return
 	}
 
@@ -124,7 +126,7 @@ func (d *BucketsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	for _, bucket := range *buckets {
 		retentionDays := int64(0)
 		if len(bucket.RetentionRules) > 0 {
-			retentionDays = int64(bucket.RetentionRules[0].EverySeconds) / 24 / 60 / 60
+			retentionDays = bucket.RetentionRules[0].EverySeconds / 24 / 60 / 60
 		}
 
 		bucketState := BucketModel{

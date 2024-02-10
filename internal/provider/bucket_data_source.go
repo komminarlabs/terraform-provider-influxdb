@@ -89,6 +89,7 @@ func (d *BucketDataSource) Configure(ctx context.Context, req datasource.Configu
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -110,6 +111,7 @@ func (d *BucketDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			"Name is empty",
 			"Must set name",
 		)
+
 		return
 	}
 
@@ -119,13 +121,14 @@ func (d *BucketDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			"Bucket not found",
 			err.Error(),
 		)
+
 		return
 	}
 
 	// Map response body to model
 	retentionDays := int64(0)
 	if len(bucket.RetentionRules) > 0 {
-		retentionDays = int64(bucket.RetentionRules[0].EverySeconds) / 24 / 60 / 60
+		retentionDays = bucket.RetentionRules[0].EverySeconds / 24 / 60 / 60
 	}
 
 	state = BucketModel{
