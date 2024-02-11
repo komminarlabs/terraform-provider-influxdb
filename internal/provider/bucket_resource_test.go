@@ -14,11 +14,10 @@ func TestAccBucketResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccBucketResourceConfig("one"),
+				Config: providerConfig + testAccBucketResourceConfig("test1", "test bucket", "12c1df6c262377a5"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "configurable_attribute", "one"),
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "defaulted", "example value when not configured"),
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "id", "example-id"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test1"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "description", "test bucket"),
 				),
 			},
 			// ImportState testing
@@ -30,13 +29,14 @@ func TestAccBucketResource(t *testing.T) {
 				// example code does not have an actual upstream service.
 				// Once the Read method is able to refresh information from
 				// the upstream service, this can be removed.
-				ImportStateVerifyIgnore: []string{"configurable_attribute", "defaulted"},
+				ImportStateVerifyIgnore: []string{"id", "defaulted"},
 			},
 			// Update and Read testing
 			{
-				Config: testAccBucketResourceConfig("two"),
+				Config: providerConfig + testAccBucketResourceConfig("test1", "", "12c1df6c262377a5"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "configurable_attribute", "two"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test1"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "description", ""),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -44,10 +44,12 @@ func TestAccBucketResource(t *testing.T) {
 	})
 }
 
-func testAccBucketResourceConfig(configurableAttribute string) string {
+func testAccBucketResourceConfig(c1 string, c2 string, c3 string) string {
 	return fmt.Sprintf(`
 resource "influxdb_bucket" "test" {
-  configurable_attribute = %[1]q
+  name = %[1]q
+  description = %[2]q 
+  org_id = %[3]q
 }
-`, configurableAttribute)
-}*/
+`, c1, c2, c3)
+} */

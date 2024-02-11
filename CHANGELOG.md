@@ -1,6 +1,7 @@
-## 0.1.0
+## [0.1.0] - 2024-02-14
 
-FEATURES:
+### Added:
+
 * **New Data Source:** `influxdb_authorization`
 * **New Data Source:** `influxdb_authorizations`
 * **New Data Source:** `influxdb_bucket`

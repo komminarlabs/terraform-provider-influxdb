@@ -40,13 +40,15 @@ func (d *AuthorizationsDataSource) Metadata(ctx context.Context, req datasource.
 func (d *AuthorizationsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
+		Description: "Lists all authorizations.",
+
 		Attributes: map[string]schema.Attribute{
 			"authorizations": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Required:    true,
+							Computed:    true,
 							Description: "The authorization ID.",
 						},
 						"token": schema.StringAttribute{

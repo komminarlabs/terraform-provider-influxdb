@@ -36,7 +36,6 @@ type BucketModel struct {
 	Id            types.String `tfsdk:"id"`
 	OrgID         types.String `tfsdk:"org_id"`
 	Type          types.String `tfsdk:"type"`
-	SchemaType    types.String `tfsdk:"schema_type"`
 	Description   types.String `tfsdk:"description"`
 	Name          types.String `tfsdk:"name"`
 	CreatedAt     types.String `tfsdk:"created_at"`

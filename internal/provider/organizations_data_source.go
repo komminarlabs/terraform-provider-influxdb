@@ -40,6 +40,8 @@ func (d *OrganizationsDataSource) Metadata(ctx context.Context, req datasource.M
 func (d *OrganizationsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
+		Description: "Lists organizations. InfluxDB returns all organizations.",
+
 		Attributes: map[string]schema.Attribute{
 			"organizations": schema.ListNestedAttribute{
 				Computed: true,

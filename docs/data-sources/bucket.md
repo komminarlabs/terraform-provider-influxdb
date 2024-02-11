@@ -3,12 +3,12 @@
 page_title: "influxdb_bucket Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Retrieves a bucket. Use this data source to retrieve information for a specific bucket.
 ---
 
 # influxdb_bucket (Data Source)
 
-
+Retrieves a bucket. Use this data source to retrieve information for a specific bucket.
 
 
 
@@ -26,6 +26,5 @@ description: |-
 - `id` (String) A Bucket ID.
 - `org_id` (String) An organization ID.
 - `retention_days` (Number) The retention days for the bucket.
-- `schema_type` (String) The Bucket schema type.
 - `type` (String) The Bucket type.
 - `updated_at` (String) Last bucket update date.

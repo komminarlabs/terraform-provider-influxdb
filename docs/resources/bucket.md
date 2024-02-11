@@ -3,12 +3,12 @@
 page_title: "influxdb_bucket Resource - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  Manages an InfluxDB bucket
+  Creates and manages a bucket.
 ---
 
 # influxdb_bucket (Resource)
 
-Manages an InfluxDB bucket
+Creates and manages a bucket.
 
 
 
@@ -30,5 +30,4 @@ Manages an InfluxDB bucket
 
 - `created_at` (String) Bucket creation date.
 - `id` (String) A Bucket ID.
-- `schema_type` (String) The Bucket schema type.
 - `updated_at` (String) Last bucket update date.

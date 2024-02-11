@@ -42,7 +42,7 @@ func (r *BucketResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "Manages an InfluxDB bucket",
+		MarkdownDescription: "Creates and manages a bucket.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -63,10 +63,6 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"user", "system"}...),
 				},
-			},
-			"schema_type": schema.StringAttribute{
-				Computed:    true,
-				Description: "The Bucket schema type.",
 			},
 			"description": schema.StringAttribute{
 				Computed:    true,
@@ -133,7 +129,6 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	plan.Id = types.StringValue(*apiResponse.Id)
 	plan.OrgID = types.StringValue(*apiResponse.OrgID)
 	plan.Type = types.StringValue(string(*apiResponse.Type))
-	plan.SchemaType = types.StringValue(string(*apiResponse.SchemaType))
 	plan.Description = types.StringPointerValue(apiResponse.Description)
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
@@ -172,7 +167,6 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 	state.Id = types.StringPointerValue(readBucket.Id)
 	state.OrgID = types.StringPointerValue(readBucket.OrgID)
 	state.Type = types.StringValue(string(*readBucket.Type))
-	state.SchemaType = types.StringValue(string(*readBucket.SchemaType))
 	state.Description = types.StringPointerValue(readBucket.Description)
 	state.CreatedAt = types.StringValue(readBucket.CreatedAt.String())
 	state.UpdatedAt = types.StringValue(readBucket.UpdatedAt.String())
@@ -232,7 +226,6 @@ func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 	plan.Id = types.StringValue(*apiResponse.Id)
 	plan.OrgID = types.StringValue(*apiResponse.OrgID)
 	plan.Type = types.StringValue(string(*apiResponse.Type))
-	plan.SchemaType = types.StringValue(string(*apiResponse.SchemaType))
 	plan.Description = types.StringPointerValue(apiResponse.Description)
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())

@@ -3,12 +3,12 @@
 page_title: "influxdb_authorization Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Retrieves an authorization. Use this data source to retrieve information about an API token, including the token's permissions and the user that the token is scoped to.
 ---
 
 # influxdb_authorization (Data Source)
 
-
+Retrieves an authorization. Use this data source to retrieve information about an API token, including the token's permissions and the user that the token is scoped to.
 
 
 

@@ -35,7 +35,7 @@ func TestAccOrganizationResource(t *testing.T) {
 			{
 				Config: providerConfig + testAccOrganizationResourceConfig("test", "test organization"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_organization.test", "test", "test organization"),
+					resource.TestCheckResourceAttr("influxdb_organization.test", "name", "test"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase

@@ -51,12 +51,6 @@ func (p *InfluxDBProvider) Schema(ctx context.Context, req provider.SchemaReques
 				Sensitive:   true,
 			},
 		},
-
-		MarkdownDescription: `
-		# InfluxDB Provider
-
-		Use the InfluxDB provider to deploy and manage resources supported by InfluxDB. You must configure the provider with the proper credentials before you can use it.
-		`,
 	}
 }
 

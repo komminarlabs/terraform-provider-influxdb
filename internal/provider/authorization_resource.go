@@ -45,7 +45,7 @@ func (r *AuthorizationResource) Metadata(ctx context.Context, req resource.Metad
 func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "Manages an InfluxDB Authorization",
+		Description: "Creates and manages an authorization and returns the authorization with the generated API token. Use this resource to create/manage an authorization, which generates an API token with permissions to read or write to a specific resource or type of resource.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

@@ -35,6 +35,8 @@ func (d *OrganizationDataSource) Metadata(ctx context.Context, req datasource.Me
 func (d *OrganizationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
+		Description: "Retrieves an organization. Use this data source to retrieve information for a specific organization.",
+
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:    true,

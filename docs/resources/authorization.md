@@ -3,12 +3,12 @@
 page_title: "influxdb_authorization Resource - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  Manages an InfluxDB Authorization
+  Creates and manages an authorization and returns the authorization with the generated API token. Use this resource to create/manage an authorization, which generates an API token with permissions to read or write to a specific resource or type of resource.
 ---
 
 # influxdb_authorization (Resource)
 
-Manages an InfluxDB Authorization
+Creates and manages an authorization and returns the authorization with the generated API token. Use this resource to create/manage an authorization, which generates an API token with permissions to read or write to a specific resource or type of resource.
 
 
 

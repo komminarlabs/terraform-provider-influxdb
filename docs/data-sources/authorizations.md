@@ -3,12 +3,12 @@
 page_title: "influxdb_authorizations Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Lists all authorizations.
 ---
 
 # influxdb_authorizations (Data Source)
 
-
+Lists all authorizations.
 
 
 
@@ -22,14 +22,11 @@ description: |-
 <a id="nestedatt--authorizations"></a>
 ### Nested Schema for `authorizations`
 
-Required:
-
-- `id` (String) The authorization ID.
-
 Read-Only:
 
 - `created_at` (String) Authorizations creation date.
 - `description` (String) A description of the token.
+- `id` (String) The authorization ID.
 - `org` (String) An Organization name. Specifies the organization that owns the authorization.
 - `org_id` (String) An organization ID. Specifies the organization that owns the authorization.
 - `permissions` (Attributes List) A list of permissions for an authorization. (see [below for nested schema](#nestedatt--authorizations--permissions))

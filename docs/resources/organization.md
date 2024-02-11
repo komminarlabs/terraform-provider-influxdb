@@ -3,12 +3,12 @@
 page_title: "influxdb_organization Resource - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  Manages an InfluxDB Organization
+  Creates and manages new organization.
 ---
 
 # influxdb_organization (Resource)
 
-Manages an InfluxDB Organization
+Creates and manages new organization.
 
 
 

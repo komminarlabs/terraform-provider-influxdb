@@ -3,12 +3,12 @@
 page_title: "influxdb_organizations Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Lists organizations. InfluxDB returns all organizations.
 ---
 
 # influxdb_organizations (Data Source)
 
-
+Lists organizations. InfluxDB returns all organizations.
 
 
 

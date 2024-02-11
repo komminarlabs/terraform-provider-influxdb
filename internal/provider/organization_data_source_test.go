@@ -1,6 +1,6 @@
 package provider
 
-/* import (
+import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -13,9 +13,9 @@ func TestAccOrganizationDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: testAccBucketsDataSourceConfig,
+				Config: providerConfig + testAccOrganizationDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.influxdb_organization.specific_org", "name", "sample"),
+					resource.TestCheckResourceAttr("data.influxdb_organization.default", "name", "default"),
 				),
 			},
 		},
@@ -23,7 +23,7 @@ func TestAccOrganizationDataSource(t *testing.T) {
 }
 
 const testAccOrganizationDataSourceConfig = `
-data "influxdb_organization" "specific_org" {
+data "influxdb_organization" "default" {
+	name = "default"
 }
 `
-*/

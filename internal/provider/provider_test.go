@@ -13,10 +13,7 @@ const (
 	// It is also possible to use the HASHICUPS_ environment variables instead,
 	// such as updating the Makefile and running the testing through that tool.
 	providerConfig = `
-  provider "influxdb" {
-	url   = "http://localhost:8086"
-    token = "yOzlcVgBJD8I_VM64oglraYHjERRLFonpwtshQ3S4elNrnEl3QkC545W5dvbqt4p_bjmLmuNcBYNiAJh7DaoGA=="
-  }
+  provider "influxdb" {}
   `
 )
 

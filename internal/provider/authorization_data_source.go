@@ -36,6 +36,8 @@ func (d *AuthorizationDataSource) Metadata(ctx context.Context, req datasource.M
 func (d *AuthorizationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
+		Description: "Retrieves an authorization. Use this data source to retrieve information about an API token, including the token's permissions and the user that the token is scoped to.",
+
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Required:    true,

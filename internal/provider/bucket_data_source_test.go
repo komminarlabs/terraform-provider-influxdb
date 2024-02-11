@@ -1,6 +1,7 @@
 package provider
 
-/* import (
+import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -13,16 +14,19 @@ func TestAccBucketDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: testAccBucketDataSourceConfig,
+				Config: providerConfig + testAccBucketDataSourceConfig("_monitoring"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.influxdb_bucket.specific_bucket", "name", "sample"),
+					resource.TestCheckResourceAttr("data.influxdb_bucket.test", "name", "_monitoring"),
 				),
 			},
 		},
 	})
 }
 
-const testAccBucketDataSourceConfig = `
-data "influxdb_bucket" "specific_bucket" {
+func testAccBucketDataSourceConfig(c1 string) string {
+	return fmt.Sprintf(`
+data "influxdb_bucket" "test" {
+	name = %[1]q
 }
-`*/
+`, c1)
+}

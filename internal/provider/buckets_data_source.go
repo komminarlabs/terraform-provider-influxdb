@@ -40,6 +40,8 @@ func (d *BucketsDataSource) Metadata(ctx context.Context, req datasource.Metadat
 func (d *BucketsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
+		Description: "Lists buckets. InfluxDB retrieves buckets owned by the organization associated with the authorization (API token).",
+
 		Attributes: map[string]schema.Attribute{
 			"buckets": schema.ListNestedAttribute{
 				Computed: true,
@@ -56,10 +58,6 @@ func (d *BucketsDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 						"type": schema.StringAttribute{
 							Computed:    true,
 							Description: "The Bucket type.",
-						},
-						"schema_type": schema.StringAttribute{
-							Computed:    true,
-							Description: "The Bucket schema type.",
 						},
 						"description": schema.StringAttribute{
 							Computed:    true,
@@ -133,7 +131,6 @@ func (d *BucketsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			Id:            types.StringValue(*bucket.Id),
 			OrgID:         types.StringValue(*bucket.OrgID),
 			Type:          types.StringValue(string(*bucket.Type)),
-			SchemaType:    types.StringValue(string(*bucket.SchemaType)),
 			Description:   types.StringPointerValue(bucket.Description),
 			Name:          types.StringValue(bucket.Name),
 			CreatedAt:     types.StringValue(bucket.CreatedAt.String()),

@@ -3,12 +3,12 @@
 page_title: "influxdb_organization Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Retrieves an organization. Use this data source to retrieve information for a specific organization.
 ---
 
 # influxdb_organization (Data Source)
 
-
+Retrieves an organization. Use this data source to retrieve information for a specific organization.
 
 
 

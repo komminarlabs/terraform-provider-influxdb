@@ -3,12 +3,12 @@
 page_title: "influxdb_buckets Data Source - terraform-provider-influxdb"
 subcategory: ""
 description: |-
-  
+  Lists buckets. InfluxDB retrieves buckets owned by the organization associated with the authorization (API token).
 ---
 
 # influxdb_buckets (Data Source)
 
-
+Lists buckets. InfluxDB retrieves buckets owned by the organization associated with the authorization (API token).
 
 
 
@@ -30,6 +30,5 @@ Read-Only:
 - `name` (String) A Bucket name.
 - `org_id` (String) An organization ID.
 - `retention_days` (Number) The retention days for the bucket.
-- `schema_type` (String) The Bucket schema type.
 - `type` (String) The Bucket type.
 - `updated_at` (String) Last bucket update date.
