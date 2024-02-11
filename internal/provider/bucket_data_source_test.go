@@ -25,5 +25,4 @@ func TestAccBucketDataSource(t *testing.T) {
 const testAccBucketDataSourceConfig = `
 data "influxdb_bucket" "specific_bucket" {
 }
-`
- */
+`*/

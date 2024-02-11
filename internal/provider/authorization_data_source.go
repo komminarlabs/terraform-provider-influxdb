@@ -128,6 +128,7 @@ func (d *AuthorizationDataSource) Configure(ctx context.Context, req datasource.
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -149,13 +150,15 @@ func (d *AuthorizationDataSource) Read(ctx context.Context, req datasource.ReadR
 			"Error getting Authorizations",
 			err.Error(),
 		)
+
 		return
 	}
 
 	var authorization *domain.Authorization = nil
 	for _, auth := range *readAuthorization {
+		v := auth
 		if *auth.Id == *state.Id.ValueStringPointer() {
-			authorization = &auth
+			authorization = &v
 			break
 		}
 	}
@@ -165,22 +168,23 @@ func (d *AuthorizationDataSource) Read(ctx context.Context, req datasource.ReadR
 			"Authorization not found",
 			err.Error(),
 		)
+
 		return
 	}
 
 	// Map response body to model
-	var permissionsState []AuthorizationPermissionModel
 	for _, permissionData := range *authorization.Permissions {
 		permissionState := AuthorizationPermissionModel{
 			Action: types.StringValue(string(permissionData.Action)),
 			Resource: AuthorizationPermissionrResourceModel{
 				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(*&permissionData.Resource.Type)),
+				Type:  types.StringValue(string(permissionData.Resource.Type)),
 				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
 				Org:   types.StringPointerValue(permissionData.Resource.Org),
 			},
 		}
-		permissionsState = append(permissionsState, permissionState)
+
+		state.Permissions = append(state.Permissions, permissionState)
 	}
 
 	state.Id = types.StringPointerValue(authorization.Id)
@@ -191,7 +195,6 @@ func (d *AuthorizationDataSource) Read(ctx context.Context, req datasource.ReadR
 	state.UpdatedAt = types.StringValue(authorization.UpdatedAt.String())
 	state.Description = types.StringValue(*authorization.AuthorizationUpdateRequest.Description)
 	state.Status = types.StringValue(string(*authorization.Status))
-	state.Permissions = permissionsState
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

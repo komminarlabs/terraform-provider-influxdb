@@ -73,6 +73,7 @@ func (d *OrganizationDataSource) Configure(ctx context.Context, req datasource.C
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -94,6 +95,7 @@ func (d *OrganizationDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"Name is empty",
 			"Must set name",
 		)
+
 		return
 	}
 
@@ -103,6 +105,7 @@ func (d *OrganizationDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"Organization not found",
 			err.Error(),
 		)
+
 		return
 	}
 

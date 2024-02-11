@@ -26,4 +26,4 @@ const testAccAuthorizationsDataSourceConfig = `
 data "influxdb_authorizations" "all" {
 }
 `
- */
+*/

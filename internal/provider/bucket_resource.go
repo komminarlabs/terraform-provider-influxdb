@@ -49,7 +49,7 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Description: "A Bucket ID.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(), //https://developer.hashicorp.com/terraform/plugin/framework/resources/plan-modification#usestateforunknown
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"org_id": schema.StringAttribute{
@@ -115,7 +115,7 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	retention_days := plan.RetentionDays
 	if !retention_days.IsNull() {
 		createBucket.RetentionRules = append(createBucket.RetentionRules, domain.RetentionRule{
-			EverySeconds: int64(retention_days.ValueInt64() * 24 * 60 * 60),
+			EverySeconds: retention_days.ValueInt64() * 24 * 60 * 60,
 		})
 	}
 
@@ -125,6 +125,7 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error creating bucket",
 			"Could not create bucket, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -163,6 +164,7 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 			"Bucket not found",
 			err.Error(),
 		)
+
 		return
 	}
 
@@ -177,8 +179,9 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	retentionDays := int64(0)
 	if len(readBucket.RetentionRules) > 0 {
-		retentionDays = int64(readBucket.RetentionRules[0].EverySeconds) / 24 / 60 / 60
+		retentionDays = readBucket.RetentionRules[0].EverySeconds / 24 / 60 / 60
 	}
+
 	state.RetentionDays = types.Int64Value(retentionDays)
 
 	// Save updated data into Terraform state
@@ -210,7 +213,7 @@ func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 	retention_days := plan.RetentionDays
 	if !retention_days.IsNull() {
 		updateBucket.RetentionRules = append(updateBucket.RetentionRules, domain.RetentionRule{
-			EverySeconds: int64(retention_days.ValueInt64() * 24 * 60 * 60),
+			EverySeconds: retention_days.ValueInt64() * 24 * 60 * 60,
 		})
 	}
 
@@ -221,6 +224,7 @@ func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 			"Error updating bucket",
 			"Could not update bucket, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 
@@ -258,6 +262,7 @@ func (r *BucketResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			"Error deleting bucket",
 			"Could not delete bucket, unexpected error: "+err.Error(),
 		)
+
 		return
 	}
 }
@@ -270,12 +275,12 @@ func (r *BucketResource) Configure(ctx context.Context, req resource.ConfigureRe
 	}
 
 	client, ok := req.ProviderData.(influxdb2.Client)
-
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 

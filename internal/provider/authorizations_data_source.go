@@ -139,6 +139,7 @@ func (d *AuthorizationsDataSource) Configure(ctx context.Context, req datasource
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected influxdb2.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -160,6 +161,7 @@ func (d *AuthorizationsDataSource) Read(ctx context.Context, req datasource.Read
 			"Error getting Authorizationss",
 			err.Error(),
 		)
+
 		return
 	}
 
@@ -171,11 +173,12 @@ func (d *AuthorizationsDataSource) Read(ctx context.Context, req datasource.Read
 				Action: types.StringValue(string(permissionData.Action)),
 				Resource: AuthorizationPermissionrResourceModel{
 					Id:    types.StringPointerValue(permissionData.Resource.Id),
-					Type:  types.StringValue(string(*&permissionData.Resource.Type)),
+					Type:  types.StringValue(string(permissionData.Resource.Type)),
 					OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
 					Org:   types.StringPointerValue(permissionData.Resource.Org),
 				},
 			}
+
 			permissionsState = append(permissionsState, permissionState)
 		}
 
@@ -190,6 +193,7 @@ func (d *AuthorizationsDataSource) Read(ctx context.Context, req datasource.Read
 			Status:      types.StringValue(string(*authorization.Status)),
 			Permissions: permissionsState,
 		}
+
 		state.Authorizations = append(state.Authorizations, authorizationState)
 	}
 
