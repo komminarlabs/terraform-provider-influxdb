@@ -30,24 +30,3 @@ type AuthorizationPermissionrResourceModel struct {
 	OrgID types.String `tfsdk:"org_id"`
 	Org   types.String `tfsdk:"org"`
 }
-
-// BucketModel maps InfluxDB bucket schema data.
-type BucketModel struct {
-	Id            types.String `tfsdk:"id"`
-	OrgID         types.String `tfsdk:"org_id"`
-	Type          types.String `tfsdk:"type"`
-	Description   types.String `tfsdk:"description"`
-	Name          types.String `tfsdk:"name"`
-	CreatedAt     types.String `tfsdk:"created_at"`
-	UpdatedAt     types.String `tfsdk:"updated_at"`
-	RetentionDays types.Int64  `tfsdk:"retention_days"`
-}
-
-// OrganizationModel maps InfluxDB organization schema data.
-type OrganizationModel struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	CreatedAt   types.String `tfsdk:"created_at"`
-	UpdatedAt   types.String `tfsdk:"updated_at"`
-}

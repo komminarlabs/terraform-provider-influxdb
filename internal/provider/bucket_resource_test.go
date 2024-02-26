@@ -48,7 +48,7 @@ func testAccBucketResourceConfig(c1 string, c2 string, c3 string) string {
 	return fmt.Sprintf(`
 resource "influxdb_bucket" "test" {
   name = %[1]q
-  description = %[2]q 
+  description = %[2]q
   org_id = %[3]q
 }
 `, c1, c2, c3)

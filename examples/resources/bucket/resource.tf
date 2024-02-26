@@ -5,10 +5,10 @@ data "influxdb_organization" "iot" {
 }
 
 resource "influxdb_bucket" "signals" {
-  org_id         = data.influxdb_organization.iot.id
-  name           = "signals"
-  description    = "This is a bucket to store signals"
-  retention_days = 14
+  org_id           = data.influxdb_organization.iot.id
+  name             = "signals"
+  description      = "This is a bucket to store signals"
+  retention_period = 604800
 }
 
 output "signals_bucket" {
