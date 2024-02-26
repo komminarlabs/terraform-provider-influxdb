@@ -17,13 +17,13 @@ Creates and manages a bucket.
 
 ### Required
 
-- `name` (String) A Bucket name.
 - `org_id` (String) An organization ID.
 
 ### Optional
 
 - `description` (String) A description of the bucket.
-- `retention_days` (Number) The retention days for the bucket.
+- `name` (String) A Bucket name.
+- `retention_period` (Number) The duration in seconds for how long data will be kept in the database. The default duration is 2592000 (30 days). 0 represents infinite retention.
 - `type` (String) The Bucket type.
 
 ### Read-Only

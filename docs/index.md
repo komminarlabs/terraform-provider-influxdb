@@ -23,10 +23,10 @@ Credentials can be provided by using the `INFLUXDB_URL` and `INFLUXDB_TOKEN`.
 ### Example
 
 ```terraform
-provider "influxdb" {}
-
 export INFLUXDB_URL="http://localhost:8086"
 export INFLUXDB_TOKEN="influxdb-token"
+
+provider "influxdb" {}
 
 terraform plan
 ```

@@ -66,9 +66,9 @@ func (d *BucketDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:    true,
 				Description: "Last bucket update date.",
 			},
-			"retention_days": schema.Int64Attribute{
+			"retention_period": schema.Int64Attribute{
 				Computed:    true,
-				Description: "The retention days for the bucket.",
+				Description: "The duration in seconds for how long data will be kept in the database. The default duration is 2592000 (30 days). 0 represents infinite retention.",
 			},
 		},
 	}
@@ -124,20 +124,15 @@ func (d *BucketDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	// Map response body to model
-	retentionDays := int64(0)
-	if len(bucket.RetentionRules) > 0 {
-		retentionDays = bucket.RetentionRules[0].EverySeconds / 24 / 60 / 60
-	}
-
 	state = BucketModel{
-		Id:            types.StringPointerValue(bucket.Id),
-		OrgID:         types.StringPointerValue(bucket.OrgID),
-		Type:          types.StringValue(string(*bucket.Type)),
-		Description:   types.StringPointerValue(bucket.Description),
-		Name:          types.StringValue(bucket.Name),
-		CreatedAt:     types.StringValue(bucket.CreatedAt.String()),
-		UpdatedAt:     types.StringValue(bucket.UpdatedAt.String()),
-		RetentionDays: types.Int64Value(retentionDays),
+		Id:              types.StringPointerValue(bucket.Id),
+		OrgID:           types.StringPointerValue(bucket.OrgID),
+		Type:            types.StringValue(string(*bucket.Type)),
+		Description:     types.StringPointerValue(bucket.Description),
+		Name:            types.StringValue(bucket.Name),
+		CreatedAt:       types.StringValue(bucket.CreatedAt.String()),
+		UpdatedAt:       types.StringValue(bucket.UpdatedAt.String()),
+		RetentionPeriod: types.Int64Value(bucket.RetentionRules[0].EverySeconds),
 	}
 
 	// Set state
