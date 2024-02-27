@@ -1,3 +1,15 @@
+## [1.0.0] - 2024-02-27
+
+## Added:
+
+* Added an optional attribute `name` to `influxdb_authorization` resource.
+* Acceptance tests for all data sources and resources.
+
+## Updated:
+
+* `retention_days` is renamed to `retention_period` in `influxdb_bucket` resource.
+* Made some document changes.
+
 ## [0.1.0] - 2024-02-14
 
 ### Added:
