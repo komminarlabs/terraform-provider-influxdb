@@ -15,7 +15,8 @@ func TestAccOrganizationDataSource(t *testing.T) {
 			{
 				Config: providerConfig + testAccOrganizationDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.influxdb_organization.default", "name", "default"),
+					resource.TestCheckResourceAttr("data.influxdb_organization.test", "name", "test"),
+					resource.TestCheckResourceAttr("data.influxdb_organization.test", "description", "This is a test organization"),
 				),
 			},
 		},
@@ -23,7 +24,13 @@ func TestAccOrganizationDataSource(t *testing.T) {
 }
 
 const testAccOrganizationDataSourceConfig = `
-data "influxdb_organization" "default" {
-	name = "default"
+resource "influxdb_organization" "test" {
+	name = "test"
+	description = "This is a test organization"
+}
+
+data "influxdb_organization" "test" {
+	name = "test"
+	depends_on = [influxdb_organization.test]
 }
 `

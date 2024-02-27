@@ -60,7 +60,7 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"type": schema.StringAttribute{
 				Computed:    true,
 				Optional:    true,
-				Description: "The Bucket type.",
+				Description: "The Bucket type. Valid values are `user` or `system`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"user", "system"}...),
 				},
@@ -82,11 +82,11 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Description: "Last bucket update date.",
 			},
-			"retention_period": schema.Int64Attribute{
+			"retention_period": schema.Int64Attribute{ // buckets cannot have more than one retention rule at this time
 				Computed:    true,
 				Optional:    true,
 				Default:     int64default.StaticInt64(2592000),
-				Description: "The duration in seconds for how long data will be kept in the database. The default duration is 2592000 (30 days). 0 represents infinite retention.",
+				Description: "The duration in seconds for how long data will be kept in the database. The default duration is `2592000` (30 days). `0` represents infinite retention.",
 			},
 		},
 	}

@@ -1,6 +1,6 @@
 package provider
 
-/* import (
+import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -13,9 +13,9 @@ func TestAccAuthorizationsDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: testAccAuthorizationsDataSourceConfig,
+				Config: providerConfig + testAccAuthorizationsDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.influxdb_authorizations.all", "", ""),
+					resource.TestCheckResourceAttr("data.influxdb_authorizations.all", "authorizations.#", "1"),
 				),
 			},
 		},
@@ -23,7 +23,5 @@ func TestAccAuthorizationsDataSource(t *testing.T) {
 }
 
 const testAccAuthorizationsDataSourceConfig = `
-data "influxdb_authorizations" "all" {
-}
+data "influxdb_authorizations" "all" {}
 `
-*/

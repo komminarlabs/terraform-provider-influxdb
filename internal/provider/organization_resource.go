@@ -55,6 +55,7 @@ func (r *OrganizationResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "The name of the organization.",
 			},
 			"description": schema.StringAttribute{
+				Computed:    true,
 				Optional:    true,
 				Description: "The description of the organization.",
 			},

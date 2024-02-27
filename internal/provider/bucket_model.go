@@ -11,5 +11,5 @@ type BucketModel struct {
 	Name            types.String `tfsdk:"name"`
 	CreatedAt       types.String `tfsdk:"created_at"`
 	UpdatedAt       types.String `tfsdk:"updated_at"`
-	RetentionPeriod types.Int64  `tfsdk:"retention_period"`
+	RetentionPeriod types.Int64  `tfsdk:"retention_period"` // buckets cannot have more than one retention rule at this time
 }
