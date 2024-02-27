@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -10,8 +11,6 @@ import (
 const (
 	// providerConfig is a shared configuration to combine with the actual
 	// test configuration so the HashiCups client is properly configured.
-	// It is also possible to use the HASHICUPS_ environment variables instead,
-	// such as updating the Makefile and running the testing through that tool.
 	providerConfig = `
   provider "influxdb" {}
   `
@@ -26,7 +25,13 @@ var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServe
 }
 
 func testAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
+	if v := os.Getenv("INFLUXDB_URL"); v == "" {
+		t.Fatal("INFLUXDB_URL must be set for acceptance tests")
+	}
+	if v := os.Getenv("INFLUXDB_TOKEN"); v == "" {
+		t.Fatal("INFLUXDB_TOKEN must be set for acceptance tests")
+	}
+	if v := os.Getenv("INFLUXDB_ORG_ID"); v == "" {
+		t.Fatal("INFLUXDB_ORG_ID must be set for acceptance tests")
+	}
 }

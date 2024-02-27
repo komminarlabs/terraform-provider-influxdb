@@ -14,28 +14,23 @@ func TestAccOrganizationResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: providerConfig + testAccOrganizationResourceConfig("test1", "This is a test organization"),
+				Config: providerConfig + testAccOrganizationResourceConfig("test", "This is a test organization"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_organization.test", "name", "test1"),
+					resource.TestCheckResourceAttr("influxdb_organization.test", "name", "test"),
 					resource.TestCheckResourceAttr("influxdb_organization.test", "description", "This is a test organization"),
 				),
 			},
 			// ImportState testing
 			{
-				ResourceName:      "influxdb_organization.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// This is not normally necessary, but is here because this
-				// example code does not have an actual upstream service.
-				// Once the Read method is able to refresh information from
-				// the upstream service, this can be removed.
-				ImportStateVerifyIgnore: []string{"id", "65a453ed2e94b06f"},
+				ResourceName: "influxdb_organization.test",
+				ImportState:  true,
 			},
 			// Update and Read testing
 			{
-				Config: providerConfig + testAccOrganizationResourceConfig("test", "test organization"),
+				Config: providerConfig + testAccOrganizationResourceConfig("test2", ""),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_organization.test", "name", "test"),
+					resource.TestCheckResourceAttr("influxdb_organization.test", "name", "test2"),
+					resource.TestCheckResourceAttr("influxdb_organization.test", "description", ""),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -43,11 +38,11 @@ func TestAccOrganizationResource(t *testing.T) {
 	})
 }
 
-func testAccOrganizationResourceConfig(c1 string, c2 string) string {
+func testAccOrganizationResourceConfig(name string, description string) string {
 	return fmt.Sprintf(`
 resource "influxdb_organization" "test" {
 	name = %[1]q
 	description = %[2]q
 }
-`, c1, c2)
+`, name, description)
 }

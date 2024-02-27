@@ -17,16 +17,17 @@ func TestAccBucketDataSource(t *testing.T) {
 				Config: providerConfig + testAccBucketDataSourceConfig("_monitoring"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.influxdb_bucket.test", "name", "_monitoring"),
+					resource.TestCheckResourceAttr("data.influxdb_bucket.test", "type", "system"),
 				),
 			},
 		},
 	})
 }
 
-func testAccBucketDataSourceConfig(c1 string) string {
+func testAccBucketDataSourceConfig(name string) string {
 	return fmt.Sprintf(`
 data "influxdb_bucket" "test" {
 	name = %[1]q
 }
-`, c1)
+`, name)
 }

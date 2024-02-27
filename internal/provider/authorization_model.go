@@ -26,7 +26,8 @@ type AuthorizationPermissionModel struct {
 // AuthorizationPermissionrResourceModel maps InfluxDB authorization permission resource schema data.
 type AuthorizationPermissionrResourceModel struct {
 	Id    types.String `tfsdk:"id"`
-	Type  types.String `tfsdk:"type"`
-	OrgID types.String `tfsdk:"org_id"`
+	Name  types.String `tfsdk:"name"`
 	Org   types.String `tfsdk:"org"`
+	OrgID types.String `tfsdk:"org_id"`
+	Type  types.String `tfsdk:"type"`
 }
