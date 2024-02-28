@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -59,7 +60,7 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"type": schema.StringAttribute{
 				Computed:    true,
 				Optional:    true,
-				Description: "The Bucket type.",
+				Description: "The Bucket type. Valid values are `user` or `system`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"user", "system"}...),
 				},
@@ -81,10 +82,11 @@ func (r *BucketResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Computed:    true,
 				Description: "Last bucket update date.",
 			},
-			"retention_days": schema.Int64Attribute{
+			"retention_period": schema.Int64Attribute{ // buckets cannot have more than one retention rule at this time
 				Computed:    true,
 				Optional:    true,
-				Description: "The retention days for the bucket.",
+				Default:     int64default.StaticInt64(2592000),
+				Description: "The duration in seconds for how long data will be kept in the database. The default duration is `2592000` (30 days). `0` represents infinite retention.",
 			},
 		},
 	}
@@ -102,17 +104,12 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Generate API request body from plan
 	createBucket := domain.Bucket{
-		OrgID:          plan.OrgID.ValueStringPointer(),
-		Name:           plan.Name.ValueString(),
-		Description:    plan.Description.ValueStringPointer(),
-		RetentionRules: []domain.RetentionRule{},
-	}
-
-	retention_days := plan.RetentionDays
-	if !retention_days.IsNull() {
-		createBucket.RetentionRules = append(createBucket.RetentionRules, domain.RetentionRule{
-			EverySeconds: retention_days.ValueInt64() * 24 * 60 * 60,
-		})
+		OrgID:       plan.OrgID.ValueStringPointer(),
+		Name:        plan.Name.ValueString(),
+		Description: plan.Description.ValueStringPointer(),
+		RetentionRules: []domain.RetentionRule{{
+			EverySeconds: plan.RetentionPeriod.ValueInt64(),
+		}},
 	}
 
 	apiResponse, err := r.client.BucketsAPI().CreateBucket(ctx, &createBucket)
@@ -126,13 +123,14 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Map response body to schema and populate Computed attribute values
-	plan.Id = types.StringValue(*apiResponse.Id)
-	plan.OrgID = types.StringValue(*apiResponse.OrgID)
+	plan.Id = types.StringPointerValue(apiResponse.Id)
+	plan.OrgID = types.StringPointerValue(apiResponse.OrgID)
+	plan.Name = types.StringValue(apiResponse.Name)
 	plan.Type = types.StringValue(string(*apiResponse.Type))
 	plan.Description = types.StringPointerValue(apiResponse.Description)
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
-	plan.RetentionDays = types.Int64Value(retention_days.ValueInt64())
+	plan.RetentionPeriod = types.Int64Value(apiResponse.RetentionRules[0].EverySeconds)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -153,7 +151,7 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Get refreshed bucket value from InfluxDB
-	readBucket, err := r.client.BucketsAPI().FindBucketByName(ctx, state.Name.ValueString())
+	readBucket, err := r.client.BucketsAPI().FindBucketByID(ctx, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Bucket not found",
@@ -166,17 +164,12 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 	// Overwrite items with refreshed state
 	state.Id = types.StringPointerValue(readBucket.Id)
 	state.OrgID = types.StringPointerValue(readBucket.OrgID)
+	state.Name = types.StringValue(readBucket.Name)
 	state.Type = types.StringValue(string(*readBucket.Type))
 	state.Description = types.StringPointerValue(readBucket.Description)
 	state.CreatedAt = types.StringValue(readBucket.CreatedAt.String())
 	state.UpdatedAt = types.StringValue(readBucket.UpdatedAt.String())
-
-	retentionDays := int64(0)
-	if len(readBucket.RetentionRules) > 0 {
-		retentionDays = readBucket.RetentionRules[0].EverySeconds / 24 / 60 / 60
-	}
-
-	state.RetentionDays = types.Int64Value(retentionDays)
+	state.RetentionPeriod = types.Int64Value(readBucket.RetentionRules[0].EverySeconds)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -197,18 +190,13 @@ func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Generate API request body from plan
 	updateBucket := domain.Bucket{
-		OrgID:          plan.OrgID.ValueStringPointer(),
-		Id:             plan.Id.ValueStringPointer(),
-		Name:           plan.Name.ValueString(),
-		Description:    plan.Description.ValueStringPointer(),
-		RetentionRules: []domain.RetentionRule{},
-	}
-
-	retention_days := plan.RetentionDays
-	if !retention_days.IsNull() {
-		updateBucket.RetentionRules = append(updateBucket.RetentionRules, domain.RetentionRule{
-			EverySeconds: retention_days.ValueInt64() * 24 * 60 * 60,
-		})
+		OrgID:       plan.OrgID.ValueStringPointer(),
+		Id:          plan.Id.ValueStringPointer(),
+		Name:        plan.Name.ValueString(),
+		Description: plan.Description.ValueStringPointer(),
+		RetentionRules: []domain.RetentionRule{{
+			EverySeconds: plan.RetentionPeriod.ValueInt64(),
+		}},
 	}
 
 	// Update existing bucket
@@ -223,13 +211,14 @@ func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Map response body to schema and populate Computed attribute values
-	plan.Id = types.StringValue(*apiResponse.Id)
-	plan.OrgID = types.StringValue(*apiResponse.OrgID)
+	plan.Id = types.StringPointerValue(apiResponse.Id)
+	plan.OrgID = types.StringPointerValue(apiResponse.OrgID)
+	plan.Name = types.StringValue(apiResponse.Name)
 	plan.Type = types.StringValue(string(*apiResponse.Type))
 	plan.Description = types.StringPointerValue(apiResponse.Description)
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
-	plan.RetentionDays = types.Int64Value(retention_days.ValueInt64())
+	plan.RetentionPeriod = types.Int64Value(apiResponse.RetentionRules[0].EverySeconds)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)

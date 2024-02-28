@@ -23,7 +23,7 @@ Creates and manages an authorization and returns the authorization with the gene
 ### Optional
 
 - `description` (String) A description of the token.
-- `status` (String) Status of the token.
+- `status` (String) Status of the token. Valid values are `active` or `inactive`.
 - `user` (String) A user name. Specifies the user that the authorization is scoped to.
 - `user_id` (String) A user ID. Specifies the user that the authorization is scoped to.
 
@@ -40,7 +40,7 @@ Creates and manages an authorization and returns the authorization with the gene
 
 Required:
 
-- `action` (String) Permission action.
+- `action` (String) Permission action. Valid values are `read` or `write`.
 - `resource` (Attributes) (see [below for nested schema](#nestedatt--permissions--resource))
 
 <a id="nestedatt--permissions--resource"></a>
@@ -52,6 +52,7 @@ Required:
 - `org_id` (String) An organization ID. Identifies the organization that owns the resource.
 - `type` (String) A resource type. Identifies the API resource's type (or kind).
 
-Read-Only:
+Optional:
 
+- `name` (String) The name of the resource. **Note:** not all resource types have a name property.
 - `org` (String) An organization name. The organization that owns the resource.

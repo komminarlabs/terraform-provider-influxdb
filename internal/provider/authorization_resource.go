@@ -63,7 +63,7 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 			"status": schema.StringAttribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "Status of the token.",
+				Description: "Status of the token. Valid values are `active` or `inactive`.",
 				Default:     stringdefault.StaticString("active"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"active", "inactive"}...),
@@ -117,7 +117,10 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
 							Required:    true,
-							Description: "Permission action.",
+							Description: "Permission action. Valid values are `read` or `write`.",
+							Validators: []validator.String{
+								stringvalidator.OneOf([]string{"read", "write"}...),
+							},
 						},
 						"resource": schema.SingleNestedAttribute{
 							Required: true,
@@ -126,23 +129,29 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									Required:    true,
 									Description: "A resource ID. Identifies a specific resource.",
 								},
-								"type": schema.StringAttribute{
-									Required:    true,
-									Description: "A resource type. Identifies the API resource's type (or kind).",
-								},
-								"org_id": schema.StringAttribute{
-									Required:    true,
-									Description: "An organization ID. Identifies the organization that owns the resource.",
+								"name": schema.StringAttribute{
+									Computed:    true,
+									Optional:    true,
+									Description: "The name of the resource. **Note:** not all resource types have a name property.",
 									PlanModifiers: []planmodifier.String{
 										stringplanmodifier.UseStateForUnknown(),
 									},
 								},
 								"org": schema.StringAttribute{
 									Computed:    true,
+									Optional:    true,
 									Description: "An organization name. The organization that owns the resource.",
 									PlanModifiers: []planmodifier.String{
 										stringplanmodifier.UseStateForUnknown(),
 									},
+								},
+								"org_id": schema.StringAttribute{
+									Required:    true,
+									Description: "An organization ID. Identifies the organization that owns the resource.",
+								},
+								"type": schema.StringAttribute{
+									Required:    true,
+									Description: "A resource type. Identifies the API resource's type (or kind).",
 								},
 							},
 						},
@@ -170,6 +179,7 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 			Action: domain.PermissionAction(permissionData.Action.ValueString()),
 			Resource: domain.Resource{
 				Id:    permissionData.Resource.Id.ValueStringPointer(),
+				Name:  permissionData.Resource.Name.ValueStringPointer(),
 				Type:  domain.ResourceType(permissionData.Resource.Type.ValueString()),
 				Org:   permissionData.Resource.Org.ValueStringPointer(),
 				OrgID: permissionData.Resource.OrgID.ValueStringPointer(),
@@ -208,17 +218,8 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
 
-	for index, permissionData := range *apiResponse.Permissions {
-		plan.Permissions[index] = AuthorizationPermissionModel{
-			Action: types.StringValue(string(permissionData.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
-				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(permissionData.Resource.Type)),
-				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
-				Org:   types.StringPointerValue(permissionData.Resource.Org),
-			},
-		}
-	}
+	permissionsResult := getPermissions(*apiResponse.Permissions)
+	plan.Permissions = permissionsResult
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -261,7 +262,7 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 	if authorization == nil {
 		resp.Diagnostics.AddError(
 			"Authorization not found",
-			err.Error(),
+			"Authorization not found",
 		)
 
 		return
@@ -277,17 +278,8 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 	state.Description = types.StringValue(*authorization.AuthorizationUpdateRequest.Description)
 	state.Status = types.StringValue(string(*authorization.Status))
 
-	for index, permissionData := range *authorization.Permissions {
-		state.Permissions[index] = AuthorizationPermissionModel{
-			Action: types.StringValue(string(permissionData.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
-				Id:    types.StringPointerValue(permissionData.Resource.Id),
-				Type:  types.StringValue(string(permissionData.Resource.Type)),
-				OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
-				Org:   types.StringPointerValue(permissionData.Resource.Org),
-			},
-		}
-	}
+	permissionsResult := getPermissions(*authorization.Permissions)
+	state.Permissions = permissionsResult
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -334,19 +326,8 @@ func (r *AuthorizationResource) Update(ctx context.Context, req resource.UpdateR
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
 
-	for _, permission := range *apiResponse.Permissions {
-		permissionState := AuthorizationPermissionModel{
-			Action: types.StringValue(string(permission.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
-				Id:    types.StringPointerValue(permission.Resource.Id),
-				Type:  types.StringValue(string(permission.Resource.Type)),
-				OrgID: types.StringPointerValue(permission.Resource.OrgID),
-				Org:   types.StringPointerValue(permission.Resource.Org),
-			},
-		}
-
-		plan.Permissions = append(plan.Permissions, permissionState)
-	}
+	permissionsResult := getPermissions(*apiResponse.Permissions)
+	plan.Permissions = permissionsResult
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -399,4 +380,24 @@ func (r *AuthorizationResource) Configure(ctx context.Context, req resource.Conf
 
 func (r *AuthorizationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func getPermissions(permissions []domain.Permission) []AuthorizationPermissionModel {
+	permissionsState := []AuthorizationPermissionModel{}
+	for _, permission := range permissions {
+		permissionState := AuthorizationPermissionModel{
+			Action: types.StringValue(string(permission.Action)),
+			Resource: AuthorizationPermissionrResourceModel{
+				Id:    types.StringPointerValue(permission.Resource.Id),
+				Name:  types.StringPointerValue(permission.Resource.Name),
+				Type:  types.StringValue(string(permission.Resource.Type)),
+				OrgID: types.StringPointerValue(permission.Resource.OrgID),
+				Org:   types.StringPointerValue(permission.Resource.Org),
+			},
+		}
+
+		permissionsState = append(permissionsState, permissionState)
+	}
+
+	return permissionsState
 }

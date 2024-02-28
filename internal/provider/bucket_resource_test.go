@@ -1,7 +1,8 @@
 package provider
 
-/* import (
+import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -14,29 +15,25 @@ func TestAccBucketResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: providerConfig + testAccBucketResourceConfig("test1", "test bucket", "12c1df6c262377a5"),
+				Config: providerConfig + testAccBucketResourceWithRetentionConfig("test", "test bucket", "0"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test1"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test"),
 					resource.TestCheckResourceAttr("influxdb_bucket.test", "description", "test bucket"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "retention_period", "0"),
 				),
 			},
 			// ImportState testing
 			{
-				ResourceName:      "influxdb_bucket.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// This is not normally necessary, but is here because this
-				// example code does not have an actual upstream service.
-				// Once the Read method is able to refresh information from
-				// the upstream service, this can be removed.
-				ImportStateVerifyIgnore: []string{"id", "defaulted"},
+				ResourceName: "influxdb_bucket.test",
+				ImportState:  true,
 			},
 			// Update and Read testing
 			{
-				Config: providerConfig + testAccBucketResourceConfig("test1", "", "12c1df6c262377a5"),
+				Config: providerConfig + testAccBucketResourceConfig("test-bucket", "test-bucket"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test1"),
-					resource.TestCheckResourceAttr("influxdb_bucket.test", "description", ""),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "name", "test-bucket"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "description", "test-bucket"),
+					resource.TestCheckResourceAttr("influxdb_bucket.test", "retention_period", "2592000"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -44,12 +41,23 @@ func TestAccBucketResource(t *testing.T) {
 	})
 }
 
-func testAccBucketResourceConfig(c1 string, c2 string, c3 string) string {
+func testAccBucketResourceWithRetentionConfig(name string, description string, retention_period string) string {
 	return fmt.Sprintf(`
 resource "influxdb_bucket" "test" {
   name = %[1]q
-  description = %[2]q 
-  org_id = %[3]q
+  description = %[2]q
+  retention_period = %[3]q
+  org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
 }
-`, c1, c2, c3)
-} */
+`, name, description, retention_period)
+}
+
+func testAccBucketResourceConfig(name string, description string) string {
+	return fmt.Sprintf(`
+resource "influxdb_bucket" "test" {
+  name = %[1]q
+  description = %[2]q
+  org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
+}
+`, name, description)
+}

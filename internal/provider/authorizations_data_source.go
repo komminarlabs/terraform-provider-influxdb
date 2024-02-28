@@ -104,17 +104,21 @@ func (d *AuthorizationsDataSource) Schema(ctx context.Context, req datasource.Sc
 												Computed:    true,
 												Description: "A resource ID. Identifies a specific resource.",
 											},
-											"type": schema.StringAttribute{
+											"name": schema.StringAttribute{
 												Computed:    true,
-												Description: "A resource type. Identifies the API resource's type (or kind).",
+												Description: "The name of the resource. Note: not all resource types have a name property.",
+											},
+											"org": schema.StringAttribute{
+												Computed:    true,
+												Description: "An organization name. The organization that owns the resource.",
 											},
 											"org_id": schema.StringAttribute{
 												Computed:    true,
 												Description: "An organization ID. Identifies the organization that owns the resource.",
 											},
-											"org": schema.StringAttribute{
+											"type": schema.StringAttribute{
 												Computed:    true,
-												Description: "An organization name. The organization that owns the resource.",
+												Description: "A resource type. Identifies the API resource's type (or kind).",
 											},
 										},
 									},
@@ -175,9 +179,10 @@ func (d *AuthorizationsDataSource) Read(ctx context.Context, req datasource.Read
 				Action: types.StringValue(string(permissionData.Action)),
 				Resource: AuthorizationPermissionrResourceModel{
 					Id:    types.StringPointerValue(permissionData.Resource.Id),
-					Type:  types.StringValue(string(permissionData.Resource.Type)),
-					OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
+					Name:  types.StringPointerValue(permissionData.Resource.Name),
 					Org:   types.StringPointerValue(permissionData.Resource.Org),
+					OrgID: types.StringPointerValue(permissionData.Resource.OrgID),
+					Type:  types.StringValue(string(permissionData.Resource.Type)),
 				},
 			}
 
