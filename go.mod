@@ -1,6 +1,6 @@
 module terraform-provider-influxdb
 
-go 1.20
+go 1.22
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
