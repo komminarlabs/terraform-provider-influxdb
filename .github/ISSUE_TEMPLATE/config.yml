@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Terraform Language or Workflow Questions
+    url: https://discuss.hashicorp.com
+    about: Please ask Terraform language or workflow related questions through the HashiCorp Discuss forum
