@@ -29,6 +29,6 @@ Read-Only:
 - `id` (String) A Bucket ID.
 - `name` (String) A Bucket name.
 - `org_id` (String) An organization ID.
-- `retention_period` (Number) The duration in seconds for how long data will be kept in the database. The default duration is 2592000 (30 days). 0 represents infinite retention.
+- `retention_period` (Number) The duration in seconds for how long data will be kept in the database. `0` represents infinite retention.
 - `type` (String) The Bucket type.
 - `updated_at` (String) Last bucket update date.

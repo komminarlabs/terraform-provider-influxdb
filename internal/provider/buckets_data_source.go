@@ -77,7 +77,7 @@ func (d *BucketsDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 						},
 						"retention_period": schema.Int64Attribute{
 							Computed:    true,
-							Description: "The duration in seconds for how long data will be kept in the database. The default duration is 2592000 (30 days). 0 represents infinite retention.",
+							Description: "The duration in seconds for how long data will be kept in the database. `0` represents infinite retention.",
 						},
 					},
 				},
