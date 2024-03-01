@@ -40,6 +40,8 @@ func (p *InfluxDBProvider) Metadata(ctx context.Context, req provider.MetadataRe
 // Schema defines the provider-level schema for configuration data.
 func (p *InfluxDBProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "InfluxDB provider to deploy and manage resources supported by InfluxDB.",
+
 		Attributes: map[string]schema.Attribute{
 			"url": schema.StringAttribute{
 				Description: "The InfluxDB Cloud Dedicated server URL",
