@@ -1,4 +1,4 @@
-module terraform-provider-influxdb
+module github.com/komminarlabs/terraform-provider-influxdb
 
 go 1.22
 
