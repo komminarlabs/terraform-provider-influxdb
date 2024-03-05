@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
-	"github.com/komminarlabs/terraform-provider-influxdb/provider"
+	"github.com/komminarlabs/terraform-provider-influxdb/internal/provider"
 )
 
 var (
