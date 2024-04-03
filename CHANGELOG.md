@@ -1,3 +1,13 @@
+## [1.0.1] - 2024-03-05
+
+## Updated:
+* Updated provider docs
+* Added Issue Templates
+* Bump github.com/hashicorp/terraform-plugin-go from `0.21.0` to `0.22.0`
+* Bump github.com/hashicorp/terraform-plugin-framework from `1.5.0` to `1.6.0`
+* Upgrade golang
+* Renamed module in `go.mod`
+
 ## [1.0.0] - 2024-02-27
 
 ## Added:
