@@ -182,7 +182,7 @@ func (d *AuthorizationDataSource) Read(ctx context.Context, req datasource.ReadR
 	for _, permissionData := range *authorization.Permissions {
 		permissionState := AuthorizationPermissionModel{
 			Action: types.StringValue(string(permissionData.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
+			Resource: AuthorizationPermissionResourceModel{
 				Id:    types.StringPointerValue(permissionData.Resource.Id),
 				Name:  types.StringPointerValue(permissionData.Resource.Name),
 				Org:   types.StringPointerValue(permissionData.Resource.Org),
