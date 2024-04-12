@@ -126,7 +126,8 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 							Required: true,
 							Attributes: map[string]schema.Attribute{
 								"id": schema.StringAttribute{
-									Required:    true,
+									Computed:    true,
+									Optional:    true,
 									Description: "A resource ID. Identifies a specific resource.",
 								},
 								"name": schema.StringAttribute{
@@ -146,7 +147,8 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									},
 								},
 								"org_id": schema.StringAttribute{
-									Required:    true,
+									Computed:    true,
+									Optional:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
 								},
 								"type": schema.StringAttribute{
@@ -387,7 +389,7 @@ func getPermissions(permissions []domain.Permission) []AuthorizationPermissionMo
 	for _, permission := range permissions {
 		permissionState := AuthorizationPermissionModel{
 			Action: types.StringValue(string(permission.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
+			Resource: AuthorizationPermissionResourceModel{
 				Id:    types.StringPointerValue(permission.Resource.Id),
 				Name:  types.StringPointerValue(permission.Resource.Name),
 				Type:  types.StringValue(string(permission.Resource.Type)),
