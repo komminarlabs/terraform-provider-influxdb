@@ -106,7 +106,7 @@ func (d *AuthorizationsDataSource) Schema(ctx context.Context, req datasource.Sc
 											},
 											"name": schema.StringAttribute{
 												Computed:    true,
-												Description: "The name of the resource. Note: not all resource types have a name property.",
+												Description: "The name of the resource. **Note:** not all resource types have a name property.",
 											},
 											"org": schema.StringAttribute{
 												Computed:    true,
@@ -177,7 +177,7 @@ func (d *AuthorizationsDataSource) Read(ctx context.Context, req datasource.Read
 		for _, permissionData := range *authorization.Permissions {
 			permissionState := AuthorizationPermissionModel{
 				Action: types.StringValue(string(permissionData.Action)),
-				Resource: AuthorizationPermissionrResourceModel{
+				Resource: AuthorizationPermissionResourceModel{
 					Id:    types.StringPointerValue(permissionData.Resource.Id),
 					Name:  types.StringPointerValue(permissionData.Resource.Name),
 					Org:   types.StringPointerValue(permissionData.Resource.Org),

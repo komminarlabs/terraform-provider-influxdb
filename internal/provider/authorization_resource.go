@@ -126,16 +126,12 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 							Required: true,
 							Attributes: map[string]schema.Attribute{
 								"id": schema.StringAttribute{
-									Required:    true,
+									Optional:    true,
 									Description: "A resource ID. Identifies a specific resource.",
 								},
 								"name": schema.StringAttribute{
 									Computed:    true,
-									Optional:    true,
 									Description: "The name of the resource. **Note:** not all resource types have a name property.",
-									PlanModifiers: []planmodifier.String{
-										stringplanmodifier.UseStateForUnknown(),
-									},
 								},
 								"org": schema.StringAttribute{
 									Computed:    true,
@@ -146,12 +142,46 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									},
 								},
 								"org_id": schema.StringAttribute{
-									Required:    true,
+									Computed:    true,
+									Optional:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 								},
 								"type": schema.StringAttribute{
 									Required:    true,
 									Description: "A resource type. Identifies the API resource's type (or kind).",
+									Validators: []validator.String{
+										stringvalidator.OneOf([]string{
+											"authorizations",
+											"buckets",
+											"dashboards",
+											"orgs",
+											"tasks",
+											"telegrafs",
+											"users",
+											"variables",
+											"secrets",
+											"labels",
+											"views",
+											"documents",
+											"notificationRules",
+											"notificationEndpoints",
+											"checks",
+											"dbrp",
+											"annotations",
+											"sources",
+											"scrapers",
+											"notebooks",
+											"remotes",
+											"replications",
+											"instance",
+											"flows",
+											"functions",
+											"subscriptions",
+										}...),
+									},
 								},
 							},
 						},
@@ -217,9 +247,7 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
-
-	permissionsResult := getPermissions(*apiResponse.Permissions)
-	plan.Permissions = permissionsResult
+	plan.Permissions = getPermissions(*apiResponse.Permissions)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -277,9 +305,7 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 	state.UpdatedAt = types.StringValue(authorization.UpdatedAt.String())
 	state.Description = types.StringValue(*authorization.AuthorizationUpdateRequest.Description)
 	state.Status = types.StringValue(string(*authorization.Status))
-
-	permissionsResult := getPermissions(*authorization.Permissions)
-	state.Permissions = permissionsResult
+	state.Permissions = getPermissions(*authorization.Permissions)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -325,9 +351,7 @@ func (r *AuthorizationResource) Update(ctx context.Context, req resource.UpdateR
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
-
-	permissionsResult := getPermissions(*apiResponse.Permissions)
-	plan.Permissions = permissionsResult
+	plan.Permissions = getPermissions(*apiResponse.Permissions)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -387,7 +411,7 @@ func getPermissions(permissions []domain.Permission) []AuthorizationPermissionMo
 	for _, permission := range permissions {
 		permissionState := AuthorizationPermissionModel{
 			Action: types.StringValue(string(permission.Action)),
-			Resource: AuthorizationPermissionrResourceModel{
+			Resource: AuthorizationPermissionResourceModel{
 				Id:    types.StringPointerValue(permission.Resource.Id),
 				Name:  types.StringPointerValue(permission.Resource.Name),
 				Type:  types.StringValue(string(permission.Resource.Type)),
