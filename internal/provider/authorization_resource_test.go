@@ -53,17 +53,15 @@ resource "influxdb_authorization" "test" {
 	permissions = [{
 	  action = "read"
 	  resource = {
-		id     = influxdb_bucket.test.id
-		org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
-		type   = "buckets"
+		id   = influxdb_bucket.test.id
+		type = "buckets"
 	  }
 	  },
 	  {
 		action = "write"
 		resource = {
-		  id     = influxdb_bucket.test.id
-		  org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
-		  type   = "buckets"
+		  id   = influxdb_bucket.test.id
+		  type = "buckets"
 		}
 	}]
   }

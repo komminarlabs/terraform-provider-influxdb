@@ -15,17 +15,15 @@ resource "influxdb_authorization" "signals" {
   permissions = [{
     action = "read"
     resource = {
-      id     = data.influxdb_bucket.signals.id
-      org_id = data.influxdb_organization.iot.id
-      type   = "buckets"
+      id   = data.influxdb_bucket.signals.id
+      type = "buckets"
     }
     },
     {
       action = "write"
       resource = {
-        id     = data.influxdb_bucket.signals.id
-        org_id = data.influxdb_organization.iot.id
-        type   = "buckets"
+        id   = data.influxdb_bucket.signals.id
+        type = "buckets"
       }
   }]
 }

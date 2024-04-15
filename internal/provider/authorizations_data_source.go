@@ -106,7 +106,7 @@ func (d *AuthorizationsDataSource) Schema(ctx context.Context, req datasource.Sc
 											},
 											"name": schema.StringAttribute{
 												Computed:    true,
-												Description: "The name of the resource. Note: not all resource types have a name property.",
+												Description: "The name of the resource. **Note:** not all resource types have a name property.",
 											},
 											"org": schema.StringAttribute{
 												Computed:    true,

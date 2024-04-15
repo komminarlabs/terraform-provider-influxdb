@@ -126,17 +126,12 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 							Required: true,
 							Attributes: map[string]schema.Attribute{
 								"id": schema.StringAttribute{
-									Computed:    true,
 									Optional:    true,
 									Description: "A resource ID. Identifies a specific resource.",
 								},
 								"name": schema.StringAttribute{
 									Computed:    true,
-									Optional:    true,
 									Description: "The name of the resource. **Note:** not all resource types have a name property.",
-									PlanModifiers: []planmodifier.String{
-										stringplanmodifier.UseStateForUnknown(),
-									},
 								},
 								"org": schema.StringAttribute{
 									Computed:    true,
@@ -150,6 +145,9 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									Computed:    true,
 									Optional:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 								},
 								"type": schema.StringAttribute{
 									Required:    true,
@@ -249,9 +247,7 @@ func (r *AuthorizationResource) Create(ctx context.Context, req resource.CreateR
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
-
-	permissionsResult := getPermissions(*apiResponse.Permissions)
-	plan.Permissions = permissionsResult
+	plan.Permissions = getPermissions(*apiResponse.Permissions)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -309,9 +305,7 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 	state.UpdatedAt = types.StringValue(authorization.UpdatedAt.String())
 	state.Description = types.StringValue(*authorization.AuthorizationUpdateRequest.Description)
 	state.Status = types.StringValue(string(*authorization.Status))
-
-	permissionsResult := getPermissions(*authorization.Permissions)
-	state.Permissions = permissionsResult
+	state.Permissions = getPermissions(*authorization.Permissions)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -357,9 +351,7 @@ func (r *AuthorizationResource) Update(ctx context.Context, req resource.UpdateR
 	plan.CreatedAt = types.StringValue(apiResponse.CreatedAt.String())
 	plan.UpdatedAt = types.StringValue(apiResponse.UpdatedAt.String())
 	plan.Description = types.StringValue(*apiResponse.AuthorizationUpdateRequest.Description)
-
-	permissionsResult := getPermissions(*apiResponse.Permissions)
-	plan.Permissions = permissionsResult
+	plan.Permissions = getPermissions(*apiResponse.Permissions)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
