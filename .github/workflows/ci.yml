@@ -1,4 +1,4 @@
-name: Codecov
+name: CI
 
 on:
     pull_request:
@@ -10,7 +10,7 @@ on:
         - .github/**
 
 jobs:
-  run:
+  codecov:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
