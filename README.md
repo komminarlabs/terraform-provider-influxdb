@@ -38,7 +38,7 @@ Add the below code to your configuration.
 terraform {
   required_providers {
     influxdb = {
-      source = "registry.terraform.io/komminarlabs/influxdb"
+      source = "komminarlabs/influxdb"
     }
   }
 }
