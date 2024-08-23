@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    influxdb = {
+      source = "komminarlabs/influxdb"
+    }
+  }
+}
+
 provider "influxdb" {}
 
 resource "influxdb_organization" "iot" {
