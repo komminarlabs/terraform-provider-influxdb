@@ -59,6 +59,9 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 				Computed:    true,
 				Description: "The API token.",
 				Sensitive:   true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"status": schema.StringAttribute{
 				Optional:    true,
@@ -142,12 +145,8 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									},
 								},
 								"org_id": schema.StringAttribute{
-									Computed:    true,
-									Optional:    true,
+									Required:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
-									PlanModifiers: []planmodifier.String{
-										stringplanmodifier.UseStateForUnknown(),
-									},
 								},
 								"type": schema.StringAttribute{
 									Required:    true,
@@ -300,7 +299,6 @@ func (r *AuthorizationResource) Read(ctx context.Context, req resource.ReadReque
 	state.Id = types.StringPointerValue(authorization.Id)
 	state.Org = types.StringPointerValue(authorization.Org)
 	state.OrgID = types.StringPointerValue(authorization.OrgID)
-	state.Token = types.StringPointerValue(authorization.Token)
 	state.CreatedAt = types.StringValue(authorization.CreatedAt.String())
 	state.UpdatedAt = types.StringValue(authorization.UpdatedAt.String())
 	state.Description = types.StringValue(*authorization.AuthorizationUpdateRequest.Description)

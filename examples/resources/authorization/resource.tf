@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    influxdb = {
+      source = "komminarlabs/influxdb"
+    }
+  }
+}
+
 provider "influxdb" {}
 
 data "influxdb_organization" "iot" {
@@ -15,15 +23,17 @@ resource "influxdb_authorization" "signals" {
   permissions = [{
     action = "read"
     resource = {
-      id   = data.influxdb_bucket.signals.id
-      type = "buckets"
+      id     = data.influxdb_bucket.signals.id
+      org_id = data.influxdb_organization.iot.id
+      type   = "buckets"
     }
     },
     {
       action = "write"
       resource = {
-        id   = data.influxdb_bucket.signals.id
-        type = "buckets"
+        id     = data.influxdb_bucket.signals.id
+        org_id = data.influxdb_organization.iot.id
+        type   = "buckets"
       }
   }]
 }
