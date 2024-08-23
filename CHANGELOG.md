@@ -1,3 +1,8 @@
+## [1.1.1] - 2024-08-23
+
+## Fixed:
+* fixed overwriting the token value during read in `influxdb_authorization` resource.
+  
 ## [1.1.0] - 2024-04-16
 
 ## Updated:

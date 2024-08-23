@@ -48,13 +48,13 @@ Required:
 
 Required:
 
-- `org_id` (String) An organization ID. Identifies the organization that owns the resource.
 - `type` (String) A resource type. Identifies the API resource's type (or kind).
 
 Optional:
 
 - `id` (String) A resource ID. Identifies a specific resource.
 - `org` (String) An organization name. The organization that owns the resource.
+- `org_id` (String) An organization ID. Identifies the organization that owns the resource.
 
 Read-Only:
 
