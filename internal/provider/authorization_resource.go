@@ -145,8 +145,12 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 									},
 								},
 								"org_id": schema.StringAttribute{
-									Required:    true,
+									Computed:    true,
+									Optional:    true,
 									Description: "An organization ID. Identifies the organization that owns the resource.",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 								},
 								"type": schema.StringAttribute{
 									Required:    true,
