@@ -13,3 +13,4 @@ lint:
 docs:
 	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 	tfplugindocs generate
+	@echo "Use this site to preview markdown rendering: https://registry.terraform.io/tools/doc-preview"

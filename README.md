@@ -53,6 +53,17 @@ provider "influxdb" {
 }
 ```
 
+## Supported InfluxDB flavours
+
+### v3
+
+* [InfluxDB Cloud Serverless](https://www.influxdata.com/products/influxdb-cloud/serverless/)
+
+### v2
+
+* [InfluxDB Cloud TSM](https://docs.influxdata.com/influxdb/cloud/)
+* [InfluxDB OSS](https://docs.influxdata.com/influxdb/v2/)
+  
 ## Available functionalities
 
 ### Data Sources

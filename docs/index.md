@@ -10,9 +10,28 @@ description: |-
 
 Use the InfluxDB provider to deploy and manage resources supported by InfluxDB. You must configure the provider with the proper credentials before you can use it.
 
+## Supported InfluxDB flavours
+
+### v3
+
+* [InfluxDB Cloud Serverless](https://www.influxdata.com/products/influxdb-cloud/serverless/)
+
+### v2
+
+* [InfluxDB Cloud TSM](https://docs.influxdata.com/influxdb/cloud/)
+* [InfluxDB OSS](https://docs.influxdata.com/influxdb/v2/)
+
 ## Example Usage
 
 ```terraform
+terraform {
+  required_providers {
+    influxdb = {
+      source = "komminarlabs/influxdb"
+    }
+  }
+}
+
 provider "influxdb" {}
 ```
 
