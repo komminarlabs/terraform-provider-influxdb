@@ -1,4 +1,5 @@
-# Terraform Provider release workflow.
+# A bot ensures that these actions get synchronized - do not edit in this repository.
+
 name: Release
 
 # This GitHub action creates a release when a tag that matches the pattern
