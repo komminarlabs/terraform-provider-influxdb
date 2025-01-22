@@ -1,3 +1,5 @@
+# A bot ensures that these actions get synchronized - do not edit in this repository.
+
 name: PR
 
 on:
