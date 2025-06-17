@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"net/http"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -27,8 +28,10 @@ type InfluxDBProvider struct {
 
 // InfluxDBProviderModel maps provider schema data to a Go type.
 type InfluxDBProviderModel struct {
-	URL   types.String `tfsdk:"url"`
-	Token types.String `tfsdk:"token"`
+	URL      types.String `tfsdk:"url"`
+	Token    types.String `tfsdk:"token"`
+	UserName types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
 }
 
 // Metadata returns the provider type name.
@@ -49,6 +52,15 @@ func (p *InfluxDBProvider) Schema(ctx context.Context, req provider.SchemaReques
 			},
 			"token": schema.StringAttribute{
 				Description: "An InfluxDB token string",
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"username": schema.StringAttribute{
+				Description: "Username for the InfluxDB",
+				Optional:    true,
+			},
+			"password": schema.StringAttribute{
+				Description: "Password for the the InfluxDB",
 				Optional:    true,
 				Sensitive:   true,
 			},
@@ -105,6 +117,11 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 		token = config.Token.ValueString()
 	}
 
+	// We don't support environmental variable overrides at the moment
+
+	userName := config.UserName.ValueString()
+	password := config.Password.ValueString()
+
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
 
@@ -118,12 +135,12 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 		)
 	}
 
-	if token == "" {
+	if token == "" && userName == "" {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("token"),
-			"Missing InfluxDB Token",
-			"The provider cannot create the InfluxDB client as there is a missing or empty value for the InfluxDB Token. "+
-				"Set the host value in the configuration or use the INFLUXDB_TOKEN environment variable. "+
+			"Missing InfluxDB Credentials",
+			"The provider cannot create the InfluxDB client as there was no token nor username/password given. "+
+				"Set the token or the username and password values in the configuration or use the INFLUXDB_TOKEN environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}
@@ -139,7 +156,31 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 	tflog.Debug(ctx, "Creating InfluxDB client")
 
 	// Create a new InfluxDB client using the configuration values
-	client := influxdb2.NewClient(url, token)
+	// Try to use the token if possible, use the username only if given
+	var client influxdb2.Client
+
+	if userName == "" {
+		client = influxdb2.NewClient(url, token)
+
+	} else {
+		httpClient := &http.Client{}
+		client = influxdb2.NewClientWithOptions(
+			url,
+			"",
+			influxdb2.DefaultOptions().SetHTTPClient(httpClient),
+		)
+
+		err := client.UsersAPI().SignIn(context.Background(), userName, password)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Create InfluxDB Client",
+				"Failed to login with username and password to InfluxDB.\n\n"+
+					"InfluxDB Client Error: "+err.Error(),
+			)
+			return
+		}
+
+	}
 
 	_, err := client.Ping(context.Background())
 	if err != nil {
