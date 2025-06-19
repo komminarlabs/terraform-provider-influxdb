@@ -21,6 +21,21 @@ Use the InfluxDB provider to deploy and manage resources supported by InfluxDB. 
 * [InfluxDB Cloud TSM](https://docs.influxdata.com/influxdb/cloud/)
 * [InfluxDB OSS](https://docs.influxdata.com/influxdb/v2/)
 
+## Authentication
+
+The InfluxDB provider supports two [authentication methods](https://docs.influxdata.com/influxdb/v2/api/v2/#tag/Authentication):
+
+* Token-based authentication (recommended).
+* Username and password authentication.
+
+### Authentication Priority
+
+When both authentication methods are provided, **token authentication takes priority**. This means:
+
+- If both `token` and `username`/`password` are configured, the provider will use token authentication
+- Token authentication is the recommended method for better security and simplicity
+- Username/password authentication is used only when no token is provided
+
 ## Example Usage
 
 ```terraform
@@ -37,13 +52,27 @@ provider "influxdb" {}
 
 ## Environment Variables
 
-Credentials can be provided by using the `INFLUXDB_URL` and `INFLUXDB_TOKEN`.
+Credentials can be provided by using the `INFLUXDB_URL`, `INFLUXDB_TOKEN`, `INFLUXDB_USERNAME`, and `INFLUXDB_PASSWORD`.
 
 ### Example
+
+#### Token-based authentication
 
 ```terraform
 export INFLUXDB_URL="http://localhost:8086"
 export INFLUXDB_TOKEN="influxdb-token"
+
+provider "influxdb" {}
+
+terraform plan
+```
+
+#### Username and password authentication
+
+```terraform
+export INFLUXDB_URL="http://localhost:8086"
+export INFLUXDB_USERNAME="influxdb-user"
+export INFLUXDB_PASSWORD="influxdb-password"
 
 provider "influxdb" {}
 
@@ -55,5 +84,7 @@ terraform plan
 
 ### Optional
 
+- `password` (String, Sensitive) The InfluxDB password
 - `token` (String, Sensitive) An InfluxDB token string
 - `url` (String) The InfluxDB Cloud Dedicated server URL
+- `username` (String) The InfluxDB username

@@ -27,8 +27,10 @@ type InfluxDBProvider struct {
 
 // InfluxDBProviderModel maps provider schema data to a Go type.
 type InfluxDBProviderModel struct {
-	URL   types.String `tfsdk:"url"`
-	Token types.String `tfsdk:"token"`
+	URL      types.String `tfsdk:"url"`
+	Token    types.String `tfsdk:"token"`
+	Username types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
 }
 
 // Metadata returns the provider type name.
@@ -49,6 +51,15 @@ func (p *InfluxDBProvider) Schema(ctx context.Context, req provider.SchemaReques
 			},
 			"token": schema.StringAttribute{
 				Description: "An InfluxDB token string",
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"username": schema.StringAttribute{
+				Description: "The InfluxDB username",
+				Optional:    true,
+			},
+			"password": schema.StringAttribute{
+				Description: "The InfluxDB password",
 				Optional:    true,
 				Sensitive:   true,
 			},
@@ -87,6 +98,24 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 		)
 	}
 
+	if config.Username.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("username"),
+			"Unknown InfluxDB Username",
+			"The provider cannot create the InfluxDB client as there is an unknown configuration value for the InfluxDB Username. "+
+				"Either target apply the source of the value first or set the value statically in the configuration.",
+		)
+	}
+
+	if config.Password.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Unknown InfluxDB Password",
+			"The provider cannot create the InfluxDB client as there is an unknown configuration value for the InfluxDB Password. "+
+				"Either target apply the source of the value first or set the value statically in the configuration.",
+		)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -96,6 +125,8 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 
 	url := os.Getenv("INFLUXDB_URL")
 	token := os.Getenv("INFLUXDB_TOKEN")
+	username := os.Getenv("INFLUXDB_USERNAME")
+	password := os.Getenv("INFLUXDB_PASSWORD")
 
 	if !config.URL.IsNull() {
 		url = config.URL.ValueString()
@@ -103,6 +134,14 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 
 	if !config.Token.IsNull() {
 		token = config.Token.ValueString()
+	}
+
+	if !config.Username.IsNull() {
+		username = config.Username.ValueString()
+	}
+
+	if !config.Password.IsNull() {
+		password = config.Password.ValueString()
 	}
 
 	// If any of the expected configurations are missing, return
@@ -113,19 +152,44 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 			path.Root("url"),
 			"Missing InfluxDB URL",
 			"The provider cannot create the InfluxDB client as there is a missing or empty value for the InfluxDB URL. "+
-				"Set the host value in the configuration or use the INFLUXDB_URL environment variable. "+
+				"Set the url value in the configuration or use the INFLUXDB_URL environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}
 
-	if token == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("token"),
-			"Missing InfluxDB Token",
-			"The provider cannot create the InfluxDB client as there is a missing or empty value for the InfluxDB Token. "+
-				"Set the host value in the configuration or use the INFLUXDB_TOKEN environment variable. "+
-				"If either is already set, ensure the value is not empty.",
+	// Validate authentication credentials - require either token OR username+password
+	hasToken := token != ""
+	hasUsername := username != ""
+	hasPassword := password != ""
+	hasCompleteUsernamePassword := hasUsername && hasPassword
+
+	if !hasToken && !hasUsername && !hasPassword {
+		// No authentication provided at all
+		resp.Diagnostics.AddError(
+			"Missing InfluxDB Authentication",
+			"The provider cannot create the InfluxDB client as the authentication credentials are missing or empty.\n\n"+
+				"Choose one of the following authentication methods:\n"+
+				"• Token authentication: Set 'token' in configuration or use INFLUXDB_TOKEN environment variable.\n"+
+				"• Password authentication: Set both 'username' and 'password' in configuration or use INFLUXDB_USERNAME & INFLUXDB_PASSWORD environment variable.",
 		)
+	} else if !hasToken && !hasCompleteUsernamePassword {
+		// Partial username/password credentials provided
+		if !hasUsername {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("username"),
+				"Incomplete InfluxDB Authentication",
+				"Username is required when using username and password authentication. "+
+					"Provide both username and password, or use token authentication instead.",
+			)
+		}
+		if !hasPassword {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("password"),
+				"Incomplete InfluxDB Authentication",
+				"Password is required when using username and password authentication. "+
+					"Provide both username and password, or use token authentication instead.",
+			)
+		}
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -134,12 +198,38 @@ func (p *InfluxDBProvider) Configure(ctx context.Context, req provider.Configure
 
 	ctx = tflog.SetField(ctx, "INFLUXDB_URL", url)
 	ctx = tflog.SetField(ctx, "INFLUXDB_TOKEN", token)
+	ctx = tflog.SetField(ctx, "INFLUXDB_USERNAME", username)
+	ctx = tflog.SetField(ctx, "INFLUXDB_PASSWORD", password)
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "INFLUXDB_TOKEN")
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "INFLUXDB_PASSWORD")
 
 	tflog.Debug(ctx, "Creating InfluxDB client")
 
 	// Create a new InfluxDB client using the configuration values
-	client := influxdb2.NewClient(url, token)
+	// Token authentication takes priority over username/password
+	var client influxdb2.Client
+
+	if token != "" {
+		// Use token authentication (priority)
+		client = influxdb2.NewClient(url, token)
+	} else {
+		// Use username/password authentication (fallback)
+		client = influxdb2.NewClientWithOptions(
+			url,
+			"",
+			influxdb2.DefaultOptions(),
+		)
+
+		err := client.UsersAPI().SignIn(context.Background(), username, password)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Create InfluxDB Client",
+				"Failed to signin with username and password to InfluxDB.\n\n"+
+					"InfluxDB Client Error: "+err.Error(),
+			)
+			return
+		}
+	}
 
 	_, err := client.Ping(context.Background())
 	if err != nil {
