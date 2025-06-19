@@ -44,12 +44,24 @@ terraform {
 }
 ```
 
-Initialize the provider
+### Initialize the provider
+
+#### Token-based authentication
 
 ```terraform
 provider "influxdb" {
   url   = "http://localhost:8086"
   token = "influxdb-token"
+}
+```
+
+#### Username and password authentication
+
+```terraform
+provider "influxdb" {
+  url      = "http://localhost:8086"
+  username = "influxdb-user"
+  password = "influxdb-password"
 }
 ```
 
@@ -88,6 +100,15 @@ If you wish to work on the provider, you'll first need [Go](http://www.golang.or
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
 To generate or update documentation, run `make docs`.
+
+## Running Tests
+
+Set the below environment variables to run the tests:
+
+1. `INFLUXDB_URL`
+2. `INFLUXDB_TOKEN` (for token-based authentication)
+3. `INFLUXDB_USERNAME` and `INFLUXDB_PASSWORD` (for username/password authentication)
+4. `INFLUXDB_ORG` (the organization to use for the tests)
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
