@@ -49,19 +49,21 @@ resource "influxdb_bucket" "test" {
 resource "influxdb_authorization" "test" {
 	org_id      = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
 	description = %[1]q
-  
+
 	permissions = [{
 	  action = "read"
 	  resource = {
-		id   = influxdb_bucket.test.id
-		type = "buckets"
+	  	org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
+		id     = influxdb_bucket.test.id
+		type   = "buckets"
 	  }
 	  },
 	  {
 		action = "write"
 		resource = {
-		  id   = influxdb_bucket.test.id
-		  type = "buckets"
+		  org_id = "`+os.Getenv("INFLUXDB_ORG_ID")+`"
+		  id     = influxdb_bucket.test.id
+		  type   = "buckets"
 		}
 	}]
   }

@@ -28,9 +28,20 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("INFLUXDB_URL"); v == "" {
 		t.Fatal("INFLUXDB_URL must be set for acceptance tests")
 	}
-	if v := os.Getenv("INFLUXDB_TOKEN"); v == "" {
-		t.Fatal("INFLUXDB_TOKEN must be set for acceptance tests")
+
+	// Check for authentication credentials - either token OR username+password
+	token := os.Getenv("INFLUXDB_TOKEN")
+	username := os.Getenv("INFLUXDB_USERNAME")
+	password := os.Getenv("INFLUXDB_PASSWORD")
+
+	hasToken := token != ""
+	hasUsernamePassword := username != "" && password != ""
+
+	if !hasToken && !hasUsernamePassword {
+		t.Fatal("Authentication credentials must be set for acceptance tests. " +
+			"Provide either INFLUXDB_TOKEN or both INFLUXDB_USERNAME and INFLUXDB_PASSWORD environment variables")
 	}
+
 	if v := os.Getenv("INFLUXDB_ORG_ID"); v == "" {
 		t.Fatal("INFLUXDB_ORG_ID must be set for acceptance tests")
 	}
