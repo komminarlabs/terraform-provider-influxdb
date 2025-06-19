@@ -1,20 +1,27 @@
-## [1.1.2] - 2024-09-12
+# Changelog
+
+All notable changes to this project will automatically be documented in this file.
+
+The format is based on vKeep a Changelog(https://keepachangelog.com/en/1.0.0/),
+and this project adheres to vSemantic Versioning(https://semver.org/spec/v2.0.0.html).
+
+## v1.1.2 - 2024-09-12
 
 ## Updated:
 * Updated docs to include supported influxdb flavours.
 
-## [1.1.1] - 2024-08-23
+## v1.1.1 - 2024-08-23
 
 ## Fixed:
 * fixed overwriting the token value during read in `influxdb_authorization` resource.
   
-## [1.1.0] - 2024-04-16
+## v1.1.0 - 2024-04-16
 
 ## Updated:
 * Updated `influxdb_authorization` resource and made the `id` & `org_id` as optional in `permissions.resource` inline with Influx api.
 * Updated `influxdb_authorization` resource and made the `name` as read-only in `permissions.resource`. This is due to how Influx api returns the response. This will be modified in the future versions.
 
-## [1.0.1] - 2024-03-05
+## v1.0.1 - 2024-03-05
 
 ## Updated:
 * Updated provider docs
@@ -24,7 +31,7 @@
 * Upgrade golang
 * Renamed module in `go.mod`
 
-## [1.0.0] - 2024-02-27
+## v1.0.0 - 2024-02-27
 
 ## Added:
 
@@ -36,7 +43,7 @@
 * `retention_days` is renamed to `retention_period` in `influxdb_bucket` resource.
 * Made some document changes.
 
-## [0.1.0] - 2024-02-14
+## v0.1.0 - 2024-02-14
 
 ### Added:
 
