@@ -5,6 +5,15 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on vKeep a Changelog(https://keepachangelog.com/en/1.0.0/),
 and this project adheres to vSemantic Versioning(https://semver.org/spec/v2.0.0.html).
 
+## v1.4.0 - 2025-07-02
+
+### What's Changed
+
+* feat: Add InfluxDB task and label resources with data sources by @thulasirajkomminar in https://github.com/komminarlabs/terraform-provider-influxdb/pull/83
+* feat: Add InfluxDB user resource with data sources by @thulasirajkomminar in https://github.com/komminarlabs/terraform-provider-influxdb/pull/84
+
+**Full Changelog**: https://github.com/komminarlabs/terraform-provider-influxdb/compare/v1.3.0...v1.4.0
+
 ## v1.3.0 - 2025-06-19
 
 ### What's Changed
