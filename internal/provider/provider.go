@@ -258,6 +258,7 @@ func (p *InfluxDBProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewLabelResource,
 		NewOrganizationResource,
 		NewTaskResource,
+		NewUserResource,
 	}
 }
 
@@ -274,6 +275,8 @@ func (p *InfluxDBProvider) DataSources(ctx context.Context) []func() datasource.
 		NewOrganizationsDataSource,
 		NewTaskDataSource,
 		NewTasksDataSource,
+		NewUserDataSource,
+		NewUsersDataSource,
 	}
 }
 
