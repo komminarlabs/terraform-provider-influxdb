@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -110,9 +109,6 @@ func (r *AuthorizationResource) Schema(ctx context.Context, req resource.SchemaR
 			"permissions": schema.ListNestedAttribute{
 				Required:    true,
 				Description: "A list of permissions for an authorization.",
-				Validators: []validator.List{
-					listvalidator.UniqueValues(),
-				},
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.RequiresReplace(),
 				},
