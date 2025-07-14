@@ -5,6 +5,14 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on vKeep a Changelog(https://keepachangelog.com/en/1.0.0/),
 and this project adheres to vSemantic Versioning(https://semver.org/spec/v2.0.0.html).
 
+## v1.4.1 - 2025-07-14
+
+### What's Changed
+
+* fix: Remove validator for duplicate permissions in authorization reso… by @thulasirajkomminar in https://github.com/komminarlabs/terraform-provider-influxdb/pull/87
+
+**Full Changelog**: https://github.com/komminarlabs/terraform-provider-influxdb/compare/v1.4.0...v1.4.1
+
 ## v1.4.0 - 2025-07-02
 
 ### What's Changed
